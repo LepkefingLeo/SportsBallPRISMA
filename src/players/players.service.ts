@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -8,12 +8,25 @@ import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaN
 export class PlayersService {
   constructor(private readonly db: PrismaService) { }
 
-  async create(createPlayerDto: CreatePlayerDto) {
+  /*async create(createPlayerDto: CreatePlayerDto) {
     return await this.db.player.create({
       data: {
         ...createPlayerDto,
         birthDate: new Date(createPlayerDto.birthDate)
-      }
+      },
+    });
+  }*/
+
+  async create(createPlayerDto: CreatePlayerDto) {
+    const birthDate = new Date(createPlayerDto.birthDate);
+    if (isNaN(birthDate.getTime())) {
+      throw new BadRequestException('Invalid birthDate format');
+    }
+    return await this.db.player.create({
+      data: {
+        ...createPlayerDto,
+        birthDate,
+      },
     });
   }
 
@@ -26,11 +39,13 @@ export class PlayersService {
       return await this.db.player.findUniqueOrThrow({
         where: { id }
       });
-    } catch (error: any) {
-      if (error.code === 'P2025' || error.code === 'P2016') {
+    } catch (error: PrismaClientKnownRequestError | any) {
+      if (error.code === 'P2025') {
         throw new NotFoundException(`Player with ID ${id} not found`);
       }
-      throw error;
+      if (error.code === 'P2016') {
+        throw new NotFoundException(`Player with ID ${id} not found`);
+      }
     }
   }
 

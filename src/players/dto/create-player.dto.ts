@@ -1,17 +1,18 @@
-import { IsInt, IsNotEmpty, IsString, IsDateString } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, IsDateString, IsOptional } from "class-validator";
 
 export class CreatePlayerDto {
   @IsNotEmpty()
   @IsString()
-  name: string
+  name: string;
 
   @IsInt()
-  goalCount: number
+  goalCount: number;
 
   @IsNotEmpty()
   @IsDateString()
-  birthDate: string
+  birthDate: string;
   
+  @IsOptional()
   @IsInt()
-  teamId: number
+  teamId?: number;
 }
