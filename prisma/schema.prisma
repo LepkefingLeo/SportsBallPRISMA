@@ -5,12 +5,27 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        Int      @id @default(autoincrement())
+  name      String
+  goalCount Int
+  birthDate DateTime
+  teamId    Int
+  team      Team     @relation(fields: [teamId], references: [id])
+}
+
+model Team {
+  id      Int      @id @default(autoincrement())
+  country String
+  players Player[]
 }
