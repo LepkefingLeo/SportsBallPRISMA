@@ -38,7 +38,7 @@ export class TeamService {
   }
 
   async findOne(id: number) {
-    return await this.db.team.findFirstOrThrow({
+    return await this.db.team.findUniqueOrThrow({
       where: {
         id
       }
